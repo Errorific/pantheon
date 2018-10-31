@@ -25,6 +25,7 @@ buildFolders = [
 ]
 
 void stashBuildFolders() {
+  stash name: "gradle", allowEmpty: true, includes: ".gradle/**"
   stash name: "builtstuff", allowEmpty: true, includes: "**/build/**"
 //  buildFolders.each {location ->
 //    stash(
@@ -40,6 +41,7 @@ void unstashBuildFolders() {
   //  unstash(location.replace('/', '_'))
   //  sh "ls ${location}"
   //}
+  unstash "gradle"
   unstash "builtstuff"
 }
 
@@ -64,6 +66,7 @@ if (env.BRANCH_NAME == "master") {
 stage('build') {
   node {
     checkout scm
+    sh 'git clean -fdx'
     docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
       docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
         try {
@@ -87,6 +90,7 @@ stage('parallel tests') {
     stage('unit tests') {
       node {
         checkout scm
+        sh 'git clean -fdx'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
@@ -127,6 +131,7 @@ stage('parallel tests') {
     stage('reference tests') {
       node {
         checkout scm
+        sh 'git clean -fdx'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
@@ -152,6 +157,7 @@ stage('parallel tests') {
     stage('quickstart tests') {
       node {
         checkout scm
+        sh 'git clean -fdx'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
