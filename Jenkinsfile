@@ -26,7 +26,6 @@ buildFolders = [
 
 void stashBuildFolders() {
   stash name: "gradleInProj", allowEmpty: true, includes: ".gradle/**"
-  stash name: "gradleHome", allowEmpty: true, includes: "gradlehome/**"
   stash name: "builtstuff", allowEmpty: true, includes: "**/build/**"
 //  buildFolders.each {location ->
 //    stash(
@@ -43,7 +42,6 @@ void unstashBuildFolders() {
   //  sh "ls ${location}"
   //}
   unstash "gradleInProj"
-  unstash "gradleHome"
   unstash "builtstuff"
 }
 
@@ -72,7 +70,7 @@ stage('build') {
       docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
         try {
           stage('build/Compile') {
-            sh 'GRADLE_USER_HOME=`pwd`/gradlehome ./gradlew --no-daemon --parallel clean compileJava compileTestJava compileIntegrationTestJava compileJmhJava compileTestSupportJava assemble'
+            sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel clean compileJava compileTestJava compileIntegrationTestJava compileJmhJava compileTestSupportJava assemble'
           }
           stage('build/stash build') {
             stashBuildFolders()
@@ -98,22 +96,22 @@ stage('parallel tests') {
                 unstashBuildFolders()
               }
               stage('Build') {
-                sh 'GRADLE_USER_HOME=`pwd`/gradlehome ./gradlew --no-daemon --parallel build'
+                sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel build'
               }
               stage('Integration Tests') {
-                sh 'GRADLE_USER_HOME=`pwd`/gradlehome ./gradlew --no-daemon --parallel integrationTest'
+                sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel integrationTest'
               }
               stage('Acceptance Tests') {
-                sh 'GRADLE_USER_HOME=`pwd`/gradlehome ./gradlew --no-daemon --parallel acceptanceTest --tests Web3Sha3AcceptanceTest --tests PantheonClusterAcceptanceTest --tests MiningAcceptanceTest'
+                sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel acceptanceTest --tests Web3Sha3AcceptanceTest --tests PantheonClusterAcceptanceTest --tests MiningAcceptanceTest'
               }
               stage('Check Licenses') {
-                sh 'GRADLE_USER_HOME=`pwd`/gradlehome ./gradlew --no-daemon --parallel checkLicenses'
+                sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel checkLicenses'
               }
               stage('Check javadoc') {
-                sh 'GRADLE_USER_HOME=`pwd`/gradlehome ./gradlew --no-daemon --parallel javadoc'
+                sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel javadoc'
               }
               stage('Jacoco root report') {
-                sh 'GRADLE_USER_HOME=`pwd`/gradlehome ./gradlew --no-daemon jacocoRootReport'
+                sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon jacocoRootReport'
               }
             } finally {
               archiveArtifacts(artifacts: '**/build/reports/**', allowEmptyArchive: true)
@@ -138,7 +136,7 @@ stage('parallel tests') {
                 unstashBuildFolders()
               }
               stage('Reference tests') {
-                sh 'GRADLE_USER_HOME=`pwd`/gradlehome ./gradlew --no-daemon --parallel referenceTest'
+                sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel referenceTest'
               }
             } finally {
               archiveArtifacts(artifacts: '**/build/reports/**', allowEmptyArchive: true)
@@ -163,7 +161,7 @@ stage('parallel tests') {
                 unstashBuildFolders()
               }
               stage('Docker quickstart Tests') {
-                sh 'DOCKER_HOST=tcp://docker:2375 GRADLE_USER_HOME=`pwd`/gradlehome ./gradlew --no-daemon --parallel dockerQuickstartTest'
+                sh 'DOCKER_HOST=tcp://docker:2375 GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel dockerQuickstartTest'
               }
             } finally {
               archiveArtifacts(artifacts: '**/build/test-results/**', allowEmptyArchive: true)
