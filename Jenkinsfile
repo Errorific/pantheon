@@ -79,12 +79,12 @@ stage('shared build') {
             stashBuildFolders()
           }
         } finally {
-          archiveArtifacts '**/build/reports/**'
-          archiveArtifacts '**/build/test-results/**'
-          archiveArtifacts 'build/reports/**'
-          archiveArtifacts 'build/distributions/**'
+          archiveArtifacts(artifacts: '**/build/reports/**', allowEmptyArchive: true)
+          archiveArtifacts(artifacts: '**/build/test-results/**', allowEmptyArchive: true)
+          archiveArtifacts(artifacts: 'build/reports/**', allowEmptyArchive: true)
+          archiveArtifacts(artifacts: 'build/distributions/**', allowEmptyArchive: true)
 
-          junit '**/build/test-results/**/*.xml'
+          junit(testResults: '**/build/test-results/**/*.xml', allowEmptyResults: true)
         }
       }
     }
@@ -120,12 +120,12 @@ stage('parallel tests') {
                 sh './gradlew --no-daemon jacocoRootReport'
               }
             } finally {
-              archiveArtifacts '**/build/reports/**'
-              archiveArtifacts '**/build/test-results/**'
-              archiveArtifacts 'build/reports/**'
-              archiveArtifacts 'build/distributions/**'
+              archiveArtifacts(artifacts: '**/build/reports/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: '**/build/test-results/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: 'build/reports/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: 'build/distributions/**', allowEmptyArchive: true)
 
-              junit '**/build/test-results/**/*.xml'
+              junit(testResults: '**/build/test-results/**/*.xml', allowEmptyResults: true)
             }
           }
         }
@@ -145,12 +145,12 @@ stage('parallel tests') {
                 sh './gradlew --no-daemon --parallel referenceTest'
               }
             } finally {
-              archiveArtifacts '**/build/reports/**'
-              archiveArtifacts '**/build/test-results/**'
-              archiveArtifacts 'build/reports/**'
-              archiveArtifacts 'build/distributions/**'
+              archiveArtifacts(artifacts: '**/build/reports/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: '**/build/test-results/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: 'build/reports/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: 'build/distributions/**', allowEmptyArchive: true)
 
-              junit '**/build/test-results/**/*.xml'
+              junit(testResults: '**/build/test-results/**/*.xml', allowEmptyResults: true)
             }
           }
         }
@@ -170,10 +170,10 @@ stage('parallel tests') {
                 sh 'DOCKER_HOST=tcp://docker:2375 ./gradlew --no-daemon --parallel clean dockerQuickstartTest'
               }
             } finally {
-              archiveArtifacts '**/build/test-results/**'
-              archiveArtifacts '**/build/reports/**'
+              archiveArtifacts(artifacts: '**/build/test-results/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: '**/build/reports/**', allowEmptyArchive: true)
 
-              junit '**/build/test-results/**/*.xml'
+              junit(testResults: '**/build/test-results/**/*.xml', allowEmptyResults: true)
             }
           }
         }
