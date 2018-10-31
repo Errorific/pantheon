@@ -1,49 +1,46 @@
 #!/usr/bin/env groovy
 
 buildFolders = [
-  'buildSrc',
-  'acceptance-tests',
-  'consensus/clique',
-  'consensus/common',
-  'consensus/ibft',
-  'consensus/ibftlegacy',
-  'crypto',
-  'errorprone-checks',
-  'ethereum/blockcreation',
-  'ethereum/core',
-  'ethereum/eth',
-  'ethereum/jsonrpc',
-  'ethereum/mock-p2p',
-  'ethereum/p2p',
-  'ethereum/referencetests',
-  'ethereum/rlp',
-  'ethereum/trie',
-  'pantheon',
-  'quickstart',
-  'testutil',
-  'util'
+  'buildSrc/build',
+  'acceptance-tests/build',
+  'consensus/clique/build',
+  'consensus/common/build',
+  'consensus/ibft/build',
+  'consensus/ibftlegacy/build',
+  'crypto/build',
+  'errorprone-checks/build',
+  'ethereum/blockcreation/build',
+  'ethereum/core/build',
+  'ethereum/eth/build',
+  'ethereum/jsonrpc/build',
+  'ethereum/mock-p2p/build',
+  'ethereum/p2p/build',
+  'ethereum/referencetests/build',
+  'ethereum/rlp/build',
+  'ethereum/trie/build',
+  'pantheon/build',
+  'quickstart/build',
+  'testutil/build',
+  'util/build'
 ]
 
 void stashBuildFolders() {
-  buildFolders.each {location ->
-    stash(
-      name: location.replace('/', '_'),
-      allowEmpty: true,
-      includes: "${location}/build/"
-    )
-  }
+  stash name: "builtstuff", allowEmpty: true, includes: "**/build"
+//  buildFolders.each {location ->
+//    stash(
+//      name: location.replace('/', '_'),
+//      allowEmpty: true,
+//      includes: "${location}/"
+//    )
+//  }
 }
 
 void unstashBuildFolders() {
-  buildFolders.each {location ->
-    dir("${location}") {
-      sh "pwd"
-      sh "ls"
-      unstash(location.replace('/', '_'))
-      sh "ls"
-    }
-    sh "ls ${location}/build"
-  }
+  //buildFolders.each {location ->
+  //  unstash(location.replace('/', '_'))
+  //  sh "ls ${location}"
+  //}
+  unstash "builtstuff"
 }
 
 if (env.BRANCH_NAME == "master") {
