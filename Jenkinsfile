@@ -37,7 +37,10 @@ void stashBuildFolders() {
 void unstashBuildFolders() {
   buildFolders.each {location ->
     dir("${location}") {
+      sh "pwd"
+      sh "ls"
       unstash(location.replace('/', '_'))
+      sh "ls"
     }
     sh "ls ${location}/build"
   }
