@@ -1,50 +1,5 @@
 #!/usr/bin/env groovy
 
-buildFolders = [
-  'buildSrc/build',
-  'acceptance-tests/build',
-  'consensus/clique/build',
-  'consensus/common/build',
-  'consensus/ibft/build',
-  'consensus/ibftlegacy/build',
-  'crypto/build',
-  'errorprone-checks/build',
-  'ethereum/blockcreation/build',
-  'ethereum/core/build',
-  'ethereum/eth/build',
-  'ethereum/jsonrpc/build',
-  'ethereum/mock-p2p/build',
-  'ethereum/p2p/build',
-  'ethereum/referencetests/build',
-  'ethereum/rlp/build',
-  'ethereum/trie/build',
-  'pantheon/build',
-  'quickstart/build',
-  'testutil/build',
-  'util/build'
-]
-
-void stashBuildFolders() {
-  stash name: "gradleInProj", allowEmpty: true, includes: ".gradle/**"
-  stash name: "builtstuff", allowEmpty: true, includes: "**/build/**"
-//  buildFolders.each {location ->
-//    stash(
-//      name: location.replace('/', '_'),
-//      allowEmpty: true,
-//      includes: "${location}/"
-//    )
-//  }
-}
-
-void unstashBuildFolders() {
-  //buildFolders.each {location ->
-  //  unstash(location.replace('/', '_'))
-  //  sh "ls ${location}"
-  //}
-  unstash "gradleInProj"
-  unstash "builtstuff"
-}
-
 if (env.BRANCH_NAME == "master") {
   properties([
     buildDiscarder(
@@ -68,7 +23,7 @@ stage('parallel tests') {
     stage('unit tests') {
       node {
         checkout scm
-        sh 'git clean -fdxq -e .gradle/home'
+        sh 'git clean -fdxq -e .gradle/home -e build/'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
@@ -91,7 +46,7 @@ stage('parallel tests') {
     stage('unit tests') {
       node {
         checkout scm
-        sh 'git clean -fdxq -e .gradle/home'
+        sh 'git clean -fdxq -e .gradle/home -e build/'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
@@ -126,7 +81,7 @@ stage('parallel tests') {
     stage('reference tests') {
       node {
         checkout scm
-        sh 'git clean -fdxq -e .gradle/home'
+        sh 'git clean -fdxq -e .gradle/home -e build/'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
@@ -149,7 +104,7 @@ stage('parallel tests') {
     stage('quickstart tests') {
       node {
         checkout scm
-        sh 'git clean -fdxq -e .gradle/home'
+        sh 'git clean -fdxq -e .gradle/home -e build/'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
