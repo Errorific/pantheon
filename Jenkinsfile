@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-def buildFolders = [
+buildFolders = [
   'buildSrc/build',
   'acceptance-tests/build',
   'consensus/clique/build',
@@ -22,7 +22,7 @@ def buildFolders = [
   'quickstart/build',
   'testutil/build',
   'util/build'
-];
+]
 
 void stashBuildFolders() {
   buildFolders.each {
