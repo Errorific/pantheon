@@ -25,7 +25,7 @@ buildFolders = [
 ]
 
 void stashBuildFolders() {
-  stash name: "builtstuff", allowEmpty: true, includes: "**/build"
+  stash name: "builtstuff", allowEmpty: true, includes: "**/build/**"
 //  buildFolders.each {location ->
 //    stash(
 //      name: location.replace('/', '_'),
