@@ -1,28 +1,27 @@
 #!/usr/bin/env groovy
 
 buildFolders = [
-  '.gradle',
-  'buildSrc/build',
-  'acceptance-tests/build',
-  'consensus/clique/build',
-  'consensus/common/build',
-  'consensus/ibft/build',
-  'consensus/ibftlegacy/build',
-  'crypto/build',
-  'errorprone-checks/build',
-  'ethereum/blockcreation/build',
-  'ethereum/core/build',
-  'ethereum/eth/build',
-  'ethereum/jsonrpc/build',
-  'ethereum/mock-p2p/build',
-  'ethereum/p2p/build',
-  'ethereum/referencetests/build',
-  'ethereum/rlp/build',
-  'ethereum/trie/build',
-  'pantheon/build',
-  'quickstart/build',
-  'testutil/build',
-  'util/build'
+  'buildSrc',
+  'acceptance-tests',
+  'consensus/clique',
+  'consensus/common',
+  'consensus/ibft',
+  'consensus/ibftlegacy',
+  'crypto',
+  'errorprone-checks',
+  'ethereum/blockcreation',
+  'ethereum/core',
+  'ethereum/eth',
+  'ethereum/jsonrpc',
+  'ethereum/mock-p2p',
+  'ethereum/p2p',
+  'ethereum/referencetests',
+  'ethereum/rlp',
+  'ethereum/trie',
+  'pantheon',
+  'quickstart',
+  'testutil',
+  'util'
 ]
 
 void stashBuildFolders() {
@@ -30,15 +29,17 @@ void stashBuildFolders() {
     stash(
       name: location.replace('/', '_'),
       allowEmpty: true,
-      includes: "${location}/"
+      includes: "${location}/build/"
     )
   }
 }
 
 void unstashBuildFolders() {
   buildFolders.each {location ->
-    unstash(location.replace('/', '_'))
-    sh "ls ${location}"
+    dir("${location}") {
+      unstash(location.replace('/', '_'))
+    }
+    sh "ls ${location}/build"
   }
 }
 
@@ -164,7 +165,7 @@ stage('parallel tests') {
                 unstashBuildFolders()
               }
               stage('Docker quickstart Tests') {
-                sh 'DOCKER_HOST=tcp://docker:2375 ./gradlew --no-daemon --parallel clean dockerQuickstartTest'
+                sh 'DOCKER_HOST=tcp://docker:2375 ./gradlew --no-daemon --parallel dockerQuickstartTest'
               }
             } finally {
               archiveArtifacts(artifacts: '**/build/test-results/**', allowEmptyArchive: true)
