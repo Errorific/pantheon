@@ -75,6 +75,26 @@ stage('parallel tests') {
               stage('Build') {
                 sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel build'
               }
+            } finally {
+              archiveArtifacts(artifacts: '**/build/reports/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: '**/build/test-results/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: 'build/reports/**', allowEmptyArchive: true)
+              archiveArtifacts(artifacts: 'build/distributions/**', allowEmptyArchive: true)
+
+              junit(testResults: '**/build/test-results/**/*.xml', allowEmptyResults: true)
+            }
+          }
+        }
+      }
+    }
+  }, otherTests: {
+    stage('unit tests') {
+      node {
+        checkout scm
+        sh 'git clean -fdxq -e .gradle/home'
+        docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
+          docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
+            try {
               stage('Integration Tests') {
                 sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel integrationTest'
               }
