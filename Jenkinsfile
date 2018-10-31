@@ -61,22 +61,16 @@ if (env.BRANCH_NAME == "master") {
   ])
 }
 
-stage('shared build') {
+stage('build') {
   node {
     checkout scm
     docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
       docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
         try {
-          stage('Compile') {
-            sh './gradlew --no-daemon --parallel clean compileJava'
+          stage('build/Compile') {
+            sh './gradlew --no-daemon --parallel clean compileJava compileTestJava assemble'
           }
-          stage('compile tests') {
-            sh './gradlew --no-daemon --parallel compileTestJava'
-          }
-          stage('assemble') {
-            sh './gradlew --no-daemon --parallel assemble'
-          }
-          stage('stash build') {
+          stage('build/stash build') {
             stashBuildFolders()
           }
         } finally {
@@ -90,7 +84,7 @@ stage('shared build') {
 }
 stage('parallel tests') {
   parallel javaBuildTests: {
-    stage('build tests') {
+    stage('unit tests') {
       node {
         checkout scm
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
