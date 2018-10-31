@@ -80,11 +80,8 @@ stage('shared build') {
           }
         } finally {
           archiveArtifacts(artifacts: '**/build/reports/**', allowEmptyArchive: true)
-          archiveArtifacts(artifacts: '**/build/test-results/**', allowEmptyArchive: true)
           archiveArtifacts(artifacts: 'build/reports/**', allowEmptyArchive: true)
           archiveArtifacts(artifacts: 'build/distributions/**', allowEmptyArchive: true)
-
-          junit(testResults: '**/build/test-results/**/*.xml', allowEmptyResults: true)
         }
       }
     }
