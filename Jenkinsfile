@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 
 buildFolders = [
+  '.gradle',
   'buildSrc/build',
   'acceptance-tests/build',
   'consensus/clique/build',
