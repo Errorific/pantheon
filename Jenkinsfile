@@ -37,7 +37,7 @@ void stashBuildFolders() {
 void unstashBuildFolders() {
   buildFolders.each {location ->
     unstash(
-      name: location.replace('/')
+      name: location.replace('/', '_')
     )
   }
 }
