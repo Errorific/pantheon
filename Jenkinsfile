@@ -25,19 +25,19 @@ buildFolders = [
 ]
 
 void stashBuildFolders() {
-  buildFolders.each {
+  buildFolders.each {location ->
     stash(
-      name: ${it},
+      name: location,
       allowEmpty: true,
-      includes: "${it}/**"
+      includes: "${location}/**"
     )
   }
 }
 
 void unstashBuildFolders() {
-  buildFolders.each {
+  buildFolders.each {location ->
     unstash(
-      name: ${it}
+      name: location
     )
   }
 }
