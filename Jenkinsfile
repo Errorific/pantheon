@@ -27,7 +27,7 @@ buildFolders = [
 void stashBuildFolders() {
   buildFolders.each {location ->
     stash(
-      name: location,
+      name: location.replace('/', '_'),
       allowEmpty: true,
       includes: "${location}/**"
     )
@@ -37,7 +37,7 @@ void stashBuildFolders() {
 void unstashBuildFolders() {
   buildFolders.each {location ->
     unstash(
-      name: location
+      name: location.replace('/')
     )
   }
 }
