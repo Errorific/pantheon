@@ -66,6 +66,7 @@ if (env.BRANCH_NAME == "master") {
 stage('build') {
   node {
     checkout scm
+    sh 'git clean -fdxq'
     docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
       docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
         try {
@@ -89,6 +90,7 @@ stage('parallel tests') {
     stage('unit tests') {
       node {
         checkout scm
+        sh 'git clean -fdxq'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
@@ -129,6 +131,7 @@ stage('parallel tests') {
     stage('reference tests') {
       node {
         checkout scm
+        sh 'git clean -fdxq'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
@@ -154,6 +157,7 @@ stage('parallel tests') {
     stage('quickstart tests') {
       node {
         checkout scm
+        sh 'git clean -fdxq'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
