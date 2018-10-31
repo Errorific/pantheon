@@ -63,40 +63,15 @@ if (env.BRANCH_NAME == "master") {
   ])
 }
 
-stage('build') {
-  node {
-    checkout scm
-    sh 'git clean -fdxq'
-    docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
-      docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
-        try {
-          stage('build/Compile') {
-            sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel clean compileJava compileTestJava compileIntegrationTestJava compileJmhJava compileTestSupportJava assemble'
-          }
-          stage('build/stash build') {
-            stashBuildFolders()
-          }
-        } finally {
-          archiveArtifacts(artifacts: '**/build/reports/**', allowEmptyArchive: true)
-          archiveArtifacts(artifacts: 'build/reports/**', allowEmptyArchive: true)
-          archiveArtifacts(artifacts: 'build/distributions/**', allowEmptyArchive: true)
-        }
-      }
-    }
-  }
-}
 stage('parallel tests') {
   parallel javaBuildTests: {
     stage('unit tests') {
       node {
         checkout scm
-        sh 'git clean -fdxq'
+        sh 'git clean -fdxq -e .gradle/home'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
-              stage('unstash build') {
-                unstashBuildFolders()
-              }
               stage('Build') {
                 sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel build'
               }
@@ -131,13 +106,10 @@ stage('parallel tests') {
     stage('reference tests') {
       node {
         checkout scm
-        sh 'git clean -fdxq'
+        sh 'git clean -fdxq -e .gradle/home'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
-              stage('unstash build') {
-                unstashBuildFolders()
-              }
               stage('Reference tests') {
                 sh 'GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel referenceTest'
               }
@@ -157,13 +129,10 @@ stage('parallel tests') {
     stage('quickstart tests') {
       node {
         checkout scm
-        sh 'git clean -fdxq'
+        sh 'git clean -fdxq -e .gradle/home'
         docker.image('docker:18.06.0-ce-dind').withRun('--privileged') { d ->
           docker.image('pegasyseng/pantheon-build:0.0.1').inside("--link ${d.id}:docker") {
             try {
-              stage('unstash build') {
-                unstashBuildFolders()
-              }
               stage('Docker quickstart Tests') {
                 sh 'DOCKER_HOST=tcp://docker:2375 GRADLE_USER_HOME=`pwd`/.gradle/home ./gradlew --no-daemon --parallel dockerQuickstartTest'
               }
