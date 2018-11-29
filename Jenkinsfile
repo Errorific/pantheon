@@ -88,9 +88,15 @@ stage('Pantheon tests') {
 }
 
 // If we're on master and it failed, notify slack
-if (env.BRANCH_NAME == "master") {
+// if (env.BRANCH_NAME == "master") {
+    slackSend(
+        color: 'danger',
+        msg: "Pantheon master branch build is ${currentBuild.result}.\nBuild Number: #${env.BUILD_NUMBER}\n${env.BUILD_URL}"
+        channel: '@chris.mckay'
+    )
     if (currentBuild.result != 'SUCCESSFUL') {
-        def channel = '#priv-pegasys-prod-dev'
+        // def channel = '#priv-pegasys-prod-dev'
+        def channel = '@chris.mckay'
         if (currentBuild.result == 'FAILURE') {
             slackSend(
                 color: 'danger',
@@ -105,4 +111,4 @@ if (env.BRANCH_NAME == "master") {
             )
         }
     }
-}
+//}
