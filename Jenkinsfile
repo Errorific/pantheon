@@ -87,13 +87,16 @@ stage('Pantheon tests') {
         }
     }
 }
+                        } catch (e) {
+                            currentBuild.result = 'FAILURE'
+                            throw e
 } finally {
 
 // If we're on master and it failed, notify slack
 // if (env.BRANCH_NAME == "master") {
     slackSend(
         color: 'danger',
-        message: "Pantheon ${env.BRANCH_NAME} branch build is ${currentBuild.currentResult}.\nBuild Number: #${env.BUILD_NUMBER}\n${env.BUILD_URL}",
+        message: "Pantheon ${env.BRANCH_NAME} branch build is ${currentBuild.result}.\nBuild Number: #${env.BUILD_NUMBER}\n${env.BUILD_URL}",
         channel: '@chris.mckay'
     )
     if (currentBuild.result != 'SUCCESSFUL') {
