@@ -18,6 +18,7 @@ if (env.BRANCH_NAME == "master") {
     ])
 }
 
+try {
 stage('Pantheon tests') {
     parallel javaTests: {
         node {
@@ -86,6 +87,7 @@ stage('Pantheon tests') {
         }
     }
 }
+} finally {
 
 // If we're on master and it failed, notify slack
 // if (env.BRANCH_NAME == "master") {
@@ -112,3 +114,4 @@ stage('Pantheon tests') {
         }
     }
 //}
+}
