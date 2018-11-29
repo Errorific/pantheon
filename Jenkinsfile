@@ -91,7 +91,7 @@ stage('Pantheon tests') {
 // if (env.BRANCH_NAME == "master") {
     slackSend(
         color: 'danger',
-        msg: "Pantheon master branch build is ${currentBuild.result}.\nBuild Number: #${env.BUILD_NUMBER}\n${env.BUILD_URL}",
+        message: "Pantheon ${env.BRANCH_NAME} branch build is ${currentBuild.result}.\nBuild Number: #${env.BUILD_NUMBER}\n${env.BUILD_URL}",
         channel: '@chris.mckay'
     )
     if (currentBuild.result != 'SUCCESSFUL') {
@@ -100,13 +100,13 @@ stage('Pantheon tests') {
         if (currentBuild.result == 'FAILURE') {
             slackSend(
                 color: 'danger',
-                msg: "Pantheon master branch build is FAILING.\nBuild Number: #${env.BUILD_NUMBER}\n${env.BUILD_URL}",
+                message: "Pantheon master branch build is FAILING.\nBuild Number: #${env.BUILD_NUMBER}\n${env.BUILD_URL}",
                 channel: channel
             )
         } else if (currentBuild.result == 'UNSTABLE') {
             slackSend(
                 color: 'warning',
-                msg: "Pantheon master branch build is UNSTABLE.\nBuild Number: #${env.BUILD_NUMBER}\n${env.BUILD_URL}",
+                message: "Pantheon master branch build is UNSTABLE.\nBuild Number: #${env.BUILD_NUMBER}\n${env.BUILD_URL}",
                 channel: channel
             )
         }
