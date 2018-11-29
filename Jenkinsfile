@@ -93,7 +93,7 @@ try {
 } finally {
     // If we're on master and it failed, notify slack
     // if (env.BRANCH_NAME == "master") {
-    if (env.BRANCH_NAME == "testing/jenkins") {
+    if (env.BRANCH_NAME == "testing/jenkins_messaging") {
         def currentResult = currentBuild.result ?: 'SUCCESS'
         def channel = '@chris.mckay'
         if (currentResult == 'SUCCESS') {
