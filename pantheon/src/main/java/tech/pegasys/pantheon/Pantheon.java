@@ -11,7 +11,6 @@
  * specific language governing permissions and limitations under the License.
  */
 package tech.pegasys.pantheon;
-Obvious Syntax Error
 
 import static picocli.CommandLine.defaultExceptionHandler;
 
