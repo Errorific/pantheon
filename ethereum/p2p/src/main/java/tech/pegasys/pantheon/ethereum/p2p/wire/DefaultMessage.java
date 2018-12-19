@@ -20,13 +20,13 @@ import tech.pegasys.pantheon.ethereum.p2p.api.PeerConnection;
  * Simple implementation of {@link Message} that associates a {@link MessageData} instance with a
  * {@link PeerConnection}.
  */
-public final class DefaultMessage implements Message {
+public final class DefaultMessage<D extends MessageData> implements Message<D> {
 
-  private final MessageData data;
+  private final D data;
 
   private final PeerConnection connection;
 
-  public DefaultMessage(final PeerConnection channel, final MessageData data) {
+  public DefaultMessage(final PeerConnection channel, final D data) {
     this.connection = channel;
     this.data = data;
   }
@@ -37,7 +37,7 @@ public final class DefaultMessage implements Message {
   }
 
   @Override
-  public MessageData getData() {
+  public D getData() {
     return data;
   }
 }

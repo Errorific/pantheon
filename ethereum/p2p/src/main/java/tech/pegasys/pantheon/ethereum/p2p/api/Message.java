@@ -13,14 +13,14 @@
 package tech.pegasys.pantheon.ethereum.p2p.api;
 
 /** A P2P network message received from another peer. */
-public interface Message {
+public interface Message<D extends MessageData> {
 
   /**
    * Returns the {@link MessageData} contained in the message.
    *
    * @return Data in the message
    */
-  MessageData getData();
+  D getData();
 
   /**
    * {@link PeerConnection} this message was sent from.

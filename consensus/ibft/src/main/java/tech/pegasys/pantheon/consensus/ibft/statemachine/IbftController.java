@@ -19,23 +19,20 @@ import tech.pegasys.pantheon.consensus.ibft.ibftevent.BlockTimerExpiry;
 import tech.pegasys.pantheon.consensus.ibft.ibftevent.IbftReceivedMessageEvent;
 import tech.pegasys.pantheon.consensus.ibft.ibftevent.NewChainHead;
 import tech.pegasys.pantheon.consensus.ibft.ibftevent.RoundExpiry;
+import tech.pegasys.pantheon.consensus.ibft.ibftmessage.AbstractIbftMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.CommitMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.IbftV2;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.NewRoundMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.PrepareMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.ProposalMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.RoundChangeMessageData;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.CommitPayload;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.NewRoundPayload;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.Payload;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.PreparePayload;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.ProposalPayload;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.RoundChangePayload;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.SignedData;
 import tech.pegasys.pantheon.ethereum.chain.Blockchain;
 import tech.pegasys.pantheon.ethereum.core.BlockHeader;
 import tech.pegasys.pantheon.ethereum.p2p.api.Message;
 import tech.pegasys.pantheon.ethereum.p2p.api.MessageData;
+import tech.pegasys.pantheon.ethereum.p2p.wire.DefaultMessage;
 
 import java.util.List;
 import java.util.Map;
@@ -85,41 +82,50 @@ public class IbftController {
     final MessageData messageData = message.getData();
     switch (messageData.getCode()) {
       case IbftV2.PROPOSAL:
-        final SignedData<ProposalPayload> proposalMsg =
-            ProposalMessageData.fromMessage(messageData).decode();
-        if (processMessage(proposalMsg, message)) {
-          currentHeightManager.handleProposalMessage(proposalMsg);
+        final ProposalMessageData proposalMessageData =
+            ProposalMessageData.fromMessage(messageData);
+        final Message<ProposalMessageData> proposalMessage =
+            new DefaultMessage<>(message.getConnection(), proposalMessageData);
+        if (processMessage(proposalMessage)) {
+          currentHeightManager.handleProposalMessage(proposalMessage.getData().decode());
         }
         break;
 
       case IbftV2.PREPARE:
-        final SignedData<PreparePayload> prepareMsg =
-            PrepareMessageData.fromMessage(messageData).decode();
-        if (processMessage(prepareMsg, message)) {
-          currentHeightManager.handlePrepareMessage(prepareMsg);
+        final PrepareMessageData prepareMessageData = PrepareMessageData.fromMessage(messageData);
+        final Message<PrepareMessageData> prepareMessage =
+            new DefaultMessage<>(message.getConnection(), prepareMessageData);
+        if (processMessage(prepareMessage)) {
+          currentHeightManager.handlePrepareMessage(prepareMessage.getData().decode());
         }
         break;
 
       case IbftV2.COMMIT:
-        final SignedData<CommitPayload> commitMsg = CommitMessageData.fromMessage(messageData).decode();
-        if (processMessage(commitMsg, message)) {
-          currentHeightManager.handleCommitMessage(commitMsg);
+        final CommitMessageData commitMessageData = CommitMessageData.fromMessage(messageData);
+        final Message<CommitMessageData> commitMessage =
+            new DefaultMessage<>(message.getConnection(), commitMessageData);
+        if (processMessage(commitMessage)) {
+          currentHeightManager.handleCommitMessage(commitMessage.getData().decode());
         }
         break;
 
       case IbftV2.ROUND_CHANGE:
-        final SignedData<RoundChangePayload> roundChangeMsg =
-            RoundChangeMessageData.fromMessage(messageData).decode();
-        if (processMessage(roundChangeMsg, message)) {
-          currentHeightManager.handleRoundChangeMessage(roundChangeMsg);
+        final RoundChangeMessageData roundChangeMessageData =
+            RoundChangeMessageData.fromMessage(messageData);
+        final Message<RoundChangeMessageData> roundChangeMessage =
+            new DefaultMessage<>(message.getConnection(), roundChangeMessageData);
+        if (processMessage(roundChangeMessage)) {
+          currentHeightManager.handleRoundChangeMessage(roundChangeMessage.getData().decode());
         }
         break;
 
       case IbftV2.NEW_ROUND:
-        final SignedData<NewRoundPayload> newRoundMsg =
-            NewRoundMessageData.fromMessage(messageData).decode();
-        if (processMessage(newRoundMsg, message)) {
-          currentHeightManager.handleNewRoundMessage(newRoundMsg);
+        final NewRoundMessageData newRoundMessageData =
+            NewRoundMessageData.fromMessage(messageData);
+        final Message<NewRoundMessageData> newRoundMessage =
+            new DefaultMessage<>(message.getConnection(), newRoundMessageData);
+        if (processMessage(newRoundMessage)) {
+          currentHeightManager.handleNewRoundMessage(newRoundMessage.getData().decode());
         }
         break;
 
@@ -158,11 +164,12 @@ public class IbftController {
     futureMessages.remove(newChainHeight);
   }
 
-  private boolean processMessage(
-      final SignedData<? extends Payload> msg, final Message rawMsg) {
-    final ConsensusRoundIdentifier msgRoundIdentifier = msg.getPayload().getRoundIdentifier();
+  private <D extends AbstractIbftMessageData> boolean processMessage(final Message<D> rawMsg) {
+    final SignedData<?> signedData = rawMsg.getData().decode();
+    final ConsensusRoundIdentifier msgRoundIdentifier =
+        signedData.getPayload().getRoundIdentifier();
     if (isMsgForCurrentHeight(msgRoundIdentifier)) {
-      return isMsgFromKnownValidator(msg);
+      return isMsgFromKnownValidator(signedData);
     } else if (isMsgForFutureChainHeight(msgRoundIdentifier)) {
       addMessageToFutureMessageBuffer(msgRoundIdentifier.getSequenceNumber(), rawMsg);
     } else {

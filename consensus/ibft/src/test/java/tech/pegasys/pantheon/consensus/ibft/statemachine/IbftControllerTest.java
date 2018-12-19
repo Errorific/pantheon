@@ -12,7 +12,7 @@
  */
 package tech.pegasys.pantheon.consensus.ibft.statemachine;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -42,11 +42,13 @@ import tech.pegasys.pantheon.ethereum.chain.Blockchain;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.BlockHeader;
 import tech.pegasys.pantheon.ethereum.p2p.api.Message;
-import tech.pegasys.pantheon.ethereum.p2p.api.MessageData;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import javafx.util.Pair;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -85,7 +87,7 @@ public class IbftControllerTest {
   @Mock private NewRoundPayload newRoundPayload;
 
   @Mock private SignedData<RoundChangePayload> signedRoundChange;
-  @Mock private Message roundChangeMessage;
+  @Mock private Message<RoundChangeMessageData> roundChangeMessage;
   @Mock private RoundChangeMessageData roundChangeMessageData;
   @Mock private RoundChangePayload roundChangePayload;
 
@@ -152,8 +154,7 @@ public class IbftControllerTest {
     futureMessages.put(
         2L,
         ImmutableList.of(
-            prepareMessage, proposalMessage, commitMessage, roundChangeMessage,
-            newRoundMessage));
+            prepareMessage, proposalMessage, commitMessage, roundChangeMessage, newRoundMessage));
     when(blockHeightManager.getChainHeight()).thenReturn(2L);
 
     final NewChainHead newChainHead = new NewChainHead(blockHeader);
@@ -391,13 +392,24 @@ public class IbftControllerTest {
     verifyNoMoreInteractions(blockHeightManager);
   }
 
+  public static <A, B> List<Pair<A, B>> zip(List<A> as, List<B> bs) {
+    return IntStream.range(0, Math.min(as.size(), bs.size()))
+        .mapToObj(i -> new Pair<>(as.get(i), bs.get(i)))
+        .collect(Collectors.toList());
+  }
+
   private void verifyHasFutureMessages(
       final IbftReceivedMessageEvent msg, final Map<Long, List<Message>> expectedFutureMsgs) {
     ibftController.start();
     ibftController.handleMessageEvent(msg);
 
     assertThat(futureMessages).hasSize(expectedFutureMsgs.size());
-    assertThat(futureMessages).isEqualTo(expectedFutureMsgs);
+    assertThat(futureMessages)
+        .allSatisfy(
+            (round, messages) ->
+                assertThat(zip(expectedFutureMsgs.get(round), messages))
+                    .allSatisfy(
+                        (m) -> assertThat(m.getKey().getData()).isEqualTo(m.getValue().getData())));
     verify(blockHeightManager, atLeastOnce()).getChainHeight();
     verify(blockHeightManager).start();
     verifyNoMoreInteractions(blockHeightManager);
