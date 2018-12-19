@@ -19,14 +19,14 @@ import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.util.function.Function;
 
-public abstract class AbstractIbftMessage extends AbstractMessageData {
-  protected AbstractIbftMessage(final BytesValue data) {
+public abstract class AbstractIbftMessageData extends AbstractMessageData {
+  protected AbstractIbftMessageData(final BytesValue data) {
     super(data);
   }
 
   public abstract SignedData<?> decode();
 
-  protected static <T extends AbstractIbftMessage> T fromMessage(
+  protected static <T extends AbstractIbftMessageData> T fromMessage(
       final MessageData message,
       final int messageCode,
       final Class<T> clazz,
