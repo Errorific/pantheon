@@ -28,7 +28,7 @@ public class NodeWhitelistController {
   public NodeWhitelistController(final PermissioningConfiguration configuration) {
     nodeWhitelist = new ArrayList<>();
     if (configuration != null && configuration.getNodeWhitelist() != null) {
-      for (URI uri : configuration.getNodeWhitelist()) {
+      for (final URI uri : configuration.getNodeWhitelist()) {
         nodeWhitelist.add(DefaultPeer.fromURI(uri));
       }
       if (configuration.isNodeWhitelistSet()) {
@@ -47,6 +47,6 @@ public class NodeWhitelistController {
   }
 
   public boolean contains(final Peer node) {
-    return (!nodeWhitelistSet || (nodeWhitelistSet && nodeWhitelist.contains(node)));
+    return (!nodeWhitelistSet || nodeWhitelist.contains(node));
   }
 }

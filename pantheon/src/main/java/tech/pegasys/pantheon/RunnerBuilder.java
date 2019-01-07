@@ -205,7 +205,7 @@ public class RunnerBuilder {
         new PeerBlacklist(
             bannedNodeIds.stream().map(BytesValue::fromHexString).collect(Collectors.toSet()));
 
-    NodeWhitelistController nodeWhitelistController =
+    final NodeWhitelistController nodeWhitelistController =
         new NodeWhitelistController(permissioningConfiguration);
 
     final NetworkRunner networkRunner =

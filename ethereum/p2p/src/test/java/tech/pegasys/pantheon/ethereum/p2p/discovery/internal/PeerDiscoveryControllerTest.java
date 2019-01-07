@@ -907,7 +907,7 @@ public class PeerDiscoveryControllerTest {
 
     final PeerBlacklist blacklist = new PeerBlacklist();
     final PermissioningConfiguration config = new PermissioningConfiguration();
-    NodeWhitelistController nodeWhitelistController = new NodeWhitelistController(config);
+    final NodeWhitelistController nodeWhitelistController = new NodeWhitelistController(config);
 
     // Whitelist peers
     nodeWhitelistController.addNode(discoPeer);
