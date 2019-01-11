@@ -12,16 +12,9 @@
  */
 package tech.pegasys.pantheon.orion.types;
 
-public class SendContent {
-  private String payload;
-  private String from;
-  private String[] to;
+public class ReceiveResponse {
 
-  public SendContent(final String payload, final String from, final String[] to) {
-    this.payload = payload;
-    this.from = from;
-    this.to = to;
-  }
+  String payload;
 
   public String getPayload() {
     return payload;
@@ -31,19 +24,9 @@ public class SendContent {
     this.payload = payload;
   }
 
-  public String getFrom() {
-    return from;
+  public ReceiveResponse(final String payload) {
+    this.payload = payload;
   }
 
-  public void setFrom(final String from) {
-    this.from = from;
-  }
-
-  public String[] getTo() {
-    return to;
-  }
-
-  public void setTo(final String[] to) {
-    this.to = to;
-  }
+  public ReceiveResponse() {}
 }

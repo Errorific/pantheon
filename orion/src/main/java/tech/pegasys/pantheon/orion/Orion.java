@@ -12,6 +12,11 @@
  */
 package tech.pegasys.pantheon.orion;
 
+import tech.pegasys.pantheon.orion.types.ReceiveContent;
+import tech.pegasys.pantheon.orion.types.ReceiveResponse;
+import tech.pegasys.pantheon.orion.types.SendContent;
+import tech.pegasys.pantheon.orion.types.SendResponse;
+
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 public class Orion {
   private static final MediaType JSON = MediaType.parse("application/json");
-  private static final ObjectMapper om = new ObjectMapper();
+  private static final ObjectMapper objectMapper = new ObjectMapper();
   private static final Logger LOG = LogManager.getLogger();
 
   private String url;
@@ -47,22 +52,23 @@ public class Orion {
     }
   }
 
-  public String send(final SendContent content) throws IOException {
-    return executePost("/send", om.writeValueAsString(content));
+  public SendResponse send(final SendContent content) throws IOException {
+    return executePost("/send", objectMapper.writeValueAsString(content), SendResponse.class);
   }
 
-  public String receive(final ReceiveContent content) throws IOException {
-    return executePost("/receive", om.writeValueAsString(content));
+  public ReceiveResponse receive(final ReceiveContent content) throws IOException {
+    return executePost("/receive", objectMapper.writeValueAsString(content), ReceiveResponse.class);
   }
 
-  private String executePost(final String path, final String content) throws IOException {
+  private <T> T executePost(final String path, final String content, final Class<T> responseType)
+      throws IOException {
     OkHttpClient client = new OkHttpClient();
 
     RequestBody body = RequestBody.create(JSON, content);
     Request request = new Request.Builder().url(url + path).post(body).build();
 
     try (Response response = client.newCall(request).execute()) {
-      return response.body().string();
+      return objectMapper.readValue(response.body().string(), responseType);
     } catch (IOException e) {
       LOG.error("Orion failed to execute ", path);
       throw new IOException("Failed to execute post", e);

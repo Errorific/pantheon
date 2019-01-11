@@ -12,9 +12,13 @@
  */
 package tech.pegasys.pantheon.orion;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import tech.pegasys.pantheon.orion.types.ReceiveContent;
+import tech.pegasys.pantheon.orion.types.ReceiveResponse;
+import tech.pegasys.pantheon.orion.types.SendContent;
+import tech.pegasys.pantheon.orion.types.SendResponse;
 
 import java.io.IOException;
 
@@ -45,7 +49,8 @@ import org.junit.Test;
 @Ignore
 public class OrionTest {
 
-  private static String PUBLIC_KEY = "<replace_me>";
+  private static String PUBLIC_KEY = "<update_with_contents_of_foo.pub>";
+  private static String PAYLOAD = "SGVsbG8sIFdvcmxkIQ==";
   private static Orion orion;
   private static Orion broken;
 
@@ -64,20 +69,27 @@ public class OrionTest {
   }
 
   @Test(expected = IOException.class)
-  public void whenUpCheckFailsReturnFalse() throws IOException {
+  public void whenUpCheckFailsThrows() throws IOException {
     broken.upCheck();
   }
 
   @Test
   public void testSend() throws IOException {
-    SendContent sc = new SendContent("SGVsbG8sIFdvcmxkIQ==", PUBLIC_KEY, new String[] {PUBLIC_KEY});
+    SendContent sc = new SendContent(PAYLOAD, PUBLIC_KEY, new String[] {PUBLIC_KEY});
+    SendResponse sr = orion.send(sc);
 
-    System.out.println("LcF7I+UnR2XBdSxZesiYE/lTtxVfFeY4EvL9fDXb0Uo=".length());
-
-    assertThat(
-        "LcF7I+UnR2XBdSxZesiYE/lTtxVfFeY4EvL9fDXb0Uo=".length(), is(orion.send(sc).length()));
+    // example "LcF7I+UnR2XBdSxZesiYE/lTtxVfFeY4EvL9fDXb0Uo=".length() is 44
+    assertEquals(44, sr.getKey().length());
   }
 
   @Test
-  public void testReceive() {}
+  public void testReceive() throws IOException {
+    SendContent sc = new SendContent(PAYLOAD, PUBLIC_KEY, new String[] {PUBLIC_KEY});
+    SendResponse sr = orion.send(sc);
+
+    ReceiveContent rc = new ReceiveContent(sr.getKey(), PUBLIC_KEY);
+    ReceiveResponse rr = orion.receive(rc);
+
+    assertEquals(PAYLOAD, rr.getPayload());
+  }
 }

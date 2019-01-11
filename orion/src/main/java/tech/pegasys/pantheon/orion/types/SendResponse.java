@@ -12,38 +12,20 @@
  */
 package tech.pegasys.pantheon.orion.types;
 
-public class SendContent {
-  private String payload;
-  private String from;
-  private String[] to;
+public class SendResponse {
+  String key;
 
-  public SendContent(final String payload, final String from, final String[] to) {
-    this.payload = payload;
-    this.from = from;
-    this.to = to;
+  public String getKey() {
+    return key;
   }
 
-  public String getPayload() {
-    return payload;
+  public void setKey(final String key) {
+    this.key = key;
   }
 
-  public void setPayload(final String payload) {
-    this.payload = payload;
+  public SendResponse(final String key) {
+    this.key = key;
   }
 
-  public String getFrom() {
-    return from;
-  }
-
-  public void setFrom(final String from) {
-    this.from = from;
-  }
-
-  public String[] getTo() {
-    return to;
-  }
-
-  public void setTo(final String[] to) {
-    this.to = to;
-  }
+  public SendResponse() {}
 }
