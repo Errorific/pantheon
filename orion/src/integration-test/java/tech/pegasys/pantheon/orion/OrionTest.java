@@ -12,55 +12,49 @@
  */
 package tech.pegasys.pantheon.orion;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import tech.pegasys.orion.testutil.OrionTestHarness;
 import tech.pegasys.pantheon.orion.types.ReceiveContent;
 import tech.pegasys.pantheon.orion.types.ReceiveResponse;
 import tech.pegasys.pantheon.orion.types.SendContent;
 import tech.pegasys.pantheon.orion.types.SendResponse;
 
 import java.io.IOException;
+import java.util.List;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-/**
- * This test makes sure that the orion client works. It is intended to be used with a running Orion
- * instance https://github.com/PegaSysEng/orion
- *
- * <p>Before running this test:
- *
- * <ol>
- *   <li>Pull the project and run with `./gradlew run -Pargs="-g foo"`
- *   <li>Create a file `foo.conf` cloned directory with the content:
- *       <p>nodeurl = "http://127.0.0.1:8080/"
- *       <p>nodeport = 8080
- *       <p>clienturl ="http://127.0.0.1:8888/"
- *       <p>clientport = 8888
- *       <p>publickeys = ["foo.pub"]
- *       <p>privatekeys = ["foo.key"]
- *       <p>tls = "off"
- *   <li>Run Orion with `./gradlew run -Pargs="foo.conf"`
- *   <li>Modify the PUBLIC_KEY variable below with the contents of `foo.pub`
- * </ol>
- */
-@Ignore
 public class OrionTest {
 
-  private static String PUBLIC_KEY = "<update_with_contents_of_foo.pub>";
-  private static String PAYLOAD = "SGVsbG8sIFdvcmxkIQ==";
+  @ClassRule public static final TemporaryFolder folder = new TemporaryFolder();
+
+  private static final String PAYLOAD = "a wonderful transaction";
   private static Orion orion;
-  private static Orion broken;
+
+  private static OrionTestHarness testHarness;
 
   @BeforeClass
-  public static void setUpOnce() {
-    OrionConfiguration orionConfiguration = OrionConfiguration.createDefault();
-    orion = new Orion(orionConfiguration);
+  public static void setUpOnce() throws Exception {
+    folder.create();
 
-    orionConfiguration.setUrl("http:");
-    broken = new Orion(orionConfiguration);
+    testHarness = OrionTestHarness.create(folder.newFolder().toPath());
+
+    OrionConfiguration orionConfiguration = OrionConfiguration.createDefault();
+    orionConfiguration.setUrl(testHarness.getConfig().clientUrl().toString());
+
+    orion = new Orion(orionConfiguration);
+  }
+
+  @AfterClass
+  public static void tearDownOnce() {
+    testHarness.getOrion().stop();
   }
 
   @Test
@@ -68,28 +62,26 @@ public class OrionTest {
     assertTrue(orion.upCheck());
   }
 
-  @Test(expected = IOException.class)
-  public void whenUpCheckFailsThrows() throws IOException {
-    broken.upCheck();
-  }
-
   @Test
-  public void testSend() throws IOException {
-    SendContent sc = new SendContent(PAYLOAD, PUBLIC_KEY, new String[] {PUBLIC_KEY});
+  public void testSendAndReceive() throws IOException {
+    List<String> publicKeys = testHarness.getPublicKeys();
+
+    SendContent sc = new SendContent(PAYLOAD, publicKeys.get(0), new String[] {publicKeys.get(1)});
     SendResponse sr = orion.send(sc);
 
-    // example "LcF7I+UnR2XBdSxZesiYE/lTtxVfFeY4EvL9fDXb0Uo=".length() is 44
-    assertEquals(44, sr.getKey().length());
-  }
-
-  @Test
-  public void testReceive() throws IOException {
-    SendContent sc = new SendContent(PAYLOAD, PUBLIC_KEY, new String[] {PUBLIC_KEY});
-    SendResponse sr = orion.send(sc);
-
-    ReceiveContent rc = new ReceiveContent(sr.getKey(), PUBLIC_KEY);
+    ReceiveContent rc = new ReceiveContent(sr.getKey(), publicKeys.get(1));
     ReceiveResponse rr = orion.receive(rc);
 
-    assertEquals(PAYLOAD, rr.getPayload());
+    assertEquals(PAYLOAD, new String(rr.getPayload(), UTF_8));
+  }
+
+  @Test(expected = IOException.class)
+  public void whenUpCheckFailsThrows() throws IOException {
+    OrionConfiguration configuration = OrionConfiguration.createDefault();
+    configuration.setUrl("http:");
+
+    Orion broken = new Orion(configuration);
+
+    broken.upCheck();
   }
 }

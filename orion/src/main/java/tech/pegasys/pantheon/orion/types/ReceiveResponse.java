@@ -14,17 +14,17 @@ package tech.pegasys.pantheon.orion.types;
 
 public class ReceiveResponse {
 
-  String payload;
+  byte[] payload;
 
-  public String getPayload() {
+  public byte[] getPayload() {
     return payload;
   }
 
-  public void setPayload(final String payload) {
+  public void setPayload(final byte[] payload) {
     this.payload = payload;
   }
 
-  public ReceiveResponse(final String payload) {
+  public ReceiveResponse(final byte[] payload) {
     this.payload = payload;
   }
 

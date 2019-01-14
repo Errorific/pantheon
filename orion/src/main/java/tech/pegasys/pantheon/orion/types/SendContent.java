@@ -12,23 +12,25 @@
  */
 package tech.pegasys.pantheon.orion.types;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class SendContent {
-  private String payload;
+  private byte[] payload;
   private String from;
   private String[] to;
 
   public SendContent(final String payload, final String from, final String[] to) {
-    this.payload = payload;
+    this.payload = payload.getBytes(UTF_8);
     this.from = from;
     this.to = to;
   }
 
-  public String getPayload() {
+  public byte[] getPayload() {
     return payload;
   }
 
   public void setPayload(final String payload) {
-    this.payload = payload;
+    this.payload = payload.getBytes(UTF_8);
   }
 
   public String getFrom() {
