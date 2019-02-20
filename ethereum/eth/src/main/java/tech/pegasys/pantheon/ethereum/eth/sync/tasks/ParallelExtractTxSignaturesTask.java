@@ -20,43 +20,43 @@ import tech.pegasys.pantheon.metrics.OperationTimer;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ParallelValidateAndImportBodiesTask<B>
-    extends AbstractPipelinedTask<List<B>, List<B>> {
+class ParallelExtractTxSignaturesTask<B> extends AbstractPipelinedTask<List<B>, List<B>> {
   private static final Logger LOG = LogManager.getLogger();
 
   private final BlockHandler<B> blockHandler;
 
-  ParallelValidateAndImportBodiesTask(
+  ParallelExtractTxSignaturesTask(
       final BlockHandler<B> blockHandler,
       final BlockingQueue<List<B>> inboundQueue,
       final int outboundBacklogSize,
       final LabelledMetric<OperationTimer> ethTasksTimer) {
     super(inboundQueue, outboundBacklogSize, ethTasksTimer);
-
     this.blockHandler = blockHandler;
   }
 
   @Override
   protected Optional<List<B>> processStep(
-      final List<B> blocks, final Optional<List<B>> previousBlocks) {
-    final long firstBlock = blockHandler.extractBlockNumber(blocks.get(0));
-    final long lastBlock = blockHandler.extractBlockNumber(blocks.get(blocks.size() - 1));
-    LOG.debug("Starting import of chain segment {} to {}", firstBlock, lastBlock);
-    final CompletableFuture<List<B>> importedBlocksFuture =
-        blockHandler.validateAndImportBlocks(blocks);
+      final List<B> bodies, final Optional<List<B>> previousBodies) {
+    LOG.trace(
+        "Calculating fields for transactions between {} to {}",
+        blockHandler.extractBlockNumber(bodies.get(0)),
+        blockHandler.extractBlockNumber(bodies.get(bodies.size() - 1)));
+
     try {
-      final List<B> downloadedBlocks = importedBlocksFuture.get();
-      LOG.info("Completed importing chain segment {} to {}", firstBlock, lastBlock);
-      return Optional.of(downloadedBlocks);
+      blockHandler.executeParallelCalculations(bodies).get();
     } catch (final InterruptedException | ExecutionException e) {
-      failExceptionally(e);
+      result.get().completeExceptionally(e);
       return Optional.empty();
     }
+    LOG.debug(
+        "Calculated fields for transactions between {} to {}",
+        blockHandler.extractBlockNumber(bodies.get(0)),
+        blockHandler.extractBlockNumber(bodies.get(bodies.size() - 1)));
+    return Optional.of(bodies);
   }
 }
