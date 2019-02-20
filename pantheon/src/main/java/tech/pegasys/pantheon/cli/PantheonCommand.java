@@ -1009,7 +1009,7 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
   private String permissionsConfigFile() {
     String filename = null;
     if (isFullInstantiation()) {
-      filename = standaloneCommands.rpcWsAuthenticationCredentialsFile;
+      filename = standaloneCommands.permissionsConfigFile;
     } else if (isDocker) {
       final File file = new File(DOCKER_PERMISSIONS_CONFIG_FILE_LOCATION);
       if (file.exists()) {
