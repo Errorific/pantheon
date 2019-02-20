@@ -445,12 +445,6 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
   private final Boolean permissionsAccountsEnabled = false;
 
   @Option(
-      names = {"--permissions-config-file"},
-      description =
-          "Permissions config TOML file (default: a file named \"permissions_config.toml\" in the Pantheon data folder)")
-  private String permissionsConfigFile = null;
-
-  @Option(
       names = {"--privacy-enabled"},
       description = "Set if private transaction should be enabled (default: ${DEFAULT-VALUE})")
   private final Boolean privacyEnabled = false;
@@ -554,10 +548,10 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
               + "or specify the beneficiary of mining (via --miner-coinbase <Address>)");
     }
 
-    if (permissionsConfigFile != null) {
+    if (permissionsConfigFile() != null) {
       if (!permissionsAccountsEnabled && !permissionsNodesEnabled) {
         logger.warn(
-            "Permissions config file set {} but no permissions enabled", permissionsConfigFile);
+            "Permissions config file set {} but no permissions enabled", permissionsConfigFile());
       }
     }
 
@@ -626,8 +620,8 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
 
   private String getPermissionsConfigFile() {
 
-    return permissionsConfigFile != null
-        ? permissionsConfigFile
+    return permissionsConfigFile() != null
+        ? permissionsConfigFile()
         : dataDir().toAbsolutePath()
             + System.getProperty("file.separator")
             + DefaultCommandValues.PERMISSIONING_CONFIG_LOCATION;
@@ -1009,6 +1003,20 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
     if (filename != null) {
       RpcAuthFileValidator.validate(commandLine, filename, "WS");
     }
+    return filename;
+  }
+
+  private String permissionsConfigFile() {
+    String filename = null;
+    if (isFullInstantiation()) {
+      filename = standaloneCommands.rpcWsAuthenticationCredentialsFile;
+    } else if (isDocker) {
+      final File file = new File(DOCKER_PERMISSIONS_CONFIG_FILE_LOCATION);
+      if (file.exists()) {
+        filename = file.getAbsolutePath();
+      }
+    }
+
     return filename;
   }
 
