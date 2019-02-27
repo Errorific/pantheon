@@ -25,7 +25,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 public class WebSocketConfiguration {
-  public static final String DEFAULT_WEBSOCKET_HOST = "127.0.0.1";
+  public static final String DEFAULT_WEBSOCKET_HOST = "localhost";
   public static final int DEFAULT_WEBSOCKET_PORT = 8546;
   public static final Collection<RpcApi> DEFAULT_WEBSOCKET_APIS =
       Arrays.asList(RpcApis.ETH, RpcApis.NET, RpcApis.WEB3);

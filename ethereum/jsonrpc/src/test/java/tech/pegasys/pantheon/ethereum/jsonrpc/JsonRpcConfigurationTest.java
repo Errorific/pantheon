@@ -24,7 +24,7 @@ public class JsonRpcConfigurationTest {
     final JsonRpcConfiguration configuration = JsonRpcConfiguration.createDefault();
 
     assertThat(configuration.isEnabled()).isFalse();
-    assertThat(configuration.getHost()).isEqualTo("127.0.0.1");
+    assertThat(configuration.getHost()).isEqualTo("localhost");
     assertThat(configuration.getPort()).isEqualTo(8545);
     assertThat(configuration.getCorsAllowedDomains()).isEmpty();
     assertThat(configuration.getRpcApis())

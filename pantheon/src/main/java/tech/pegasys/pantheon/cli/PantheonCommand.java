@@ -246,7 +246,7 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
       paramLabel = MANDATORY_HOST_FORMAT_HELP,
       description = "Host for JSON-RPC HTTP to listen on (default: ${DEFAULT-VALUE})",
       arity = "1")
-  private String rpcHttpHost = autoDiscoverDefaultIP().getHostAddress();
+  private String rpcHttpHost = autoDiscoverDefaultIP().getHostName();
 
   @Option(
       names = {"--rpc-http-port"},
@@ -288,7 +288,7 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
       paramLabel = MANDATORY_HOST_FORMAT_HELP,
       description = "Host for JSON-RPC WebSocket service to listen on (default: ${DEFAULT-VALUE})",
       arity = "1")
-  private String rpcWsHost = autoDiscoverDefaultIP().getHostAddress();
+  private String rpcWsHost = autoDiscoverDefaultIP().getHostName();
 
   @Option(
       names = {"--rpc-ws-port"},
@@ -346,7 +346,7 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
       paramLabel = MANDATORY_HOST_FORMAT_HELP,
       description = "Host for the metrics exporter to listen on (default: ${DEFAULT-VALUE})",
       arity = "1")
-  private String metricsHost = autoDiscoverDefaultIP().getHostAddress();
+  private String metricsHost = autoDiscoverDefaultIP().getHostName();
 
   @Option(
       names = {"--metrics-port"},
@@ -365,7 +365,7 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
       paramLabel = MANDATORY_HOST_FORMAT_HELP,
       description = "Host of the Prometheus Push Gateway for push mode (default: ${DEFAULT-VALUE})",
       arity = "1")
-  private String metricsPushHost = autoDiscoverDefaultIP().getHostAddress();
+  private String metricsPushHost = autoDiscoverDefaultIP().getHostName();
 
   @Option(
       names = {"--metrics-push-port"},

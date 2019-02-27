@@ -19,10 +19,10 @@ import java.util.Objects;
 import com.google.common.collect.Lists;
 
 public class MetricsConfiguration {
-  private static final String DEFAULT_METRICS_HOST = "127.0.0.1";
+  private static final String DEFAULT_METRICS_HOST = "localhost";
   public static final int DEFAULT_METRICS_PORT = 9545;
 
-  private static final String DEFAULT_METRICS_PUSH_HOST = "127.0.0.1";
+  private static final String DEFAULT_METRICS_PUSH_HOST = "localhost";
   public static final int DEFAULT_METRICS_PUSH_PORT = 9001;
 
   private boolean enabled;
