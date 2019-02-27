@@ -13,7 +13,6 @@
 package tech.pegasys.pantheon.ethereum.jsonrpc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -22,7 +21,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 public class JsonRpcConfiguration {
-  private static final String DEFAULT_JSON_RPC_HOST = "127.0.0.1";
+  private static final String DEFAULT_JSON_RPC_HOST = "localhost";
   public static final int DEFAULT_JSON_RPC_PORT = 8545;
 
   private boolean enabled;
@@ -30,7 +29,7 @@ public class JsonRpcConfiguration {
   private String host;
   private Collection<String> corsAllowedDomains = Collections.emptyList();
   private Collection<RpcApi> rpcApis;
-  private Collection<String> hostsWhitelist = Arrays.asList("localhost", "127.0.0.1");;
+  private Collection<String> hostsWhitelist = Collections.singletonList("localhost");
   private boolean authenticationEnabled = false;
   private String authenticationCredentialsFile;
 
